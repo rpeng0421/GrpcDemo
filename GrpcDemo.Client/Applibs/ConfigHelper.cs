@@ -7,6 +7,8 @@ namespace GrpcDemo.Client.Applibs
     {
         private static IConfiguration _config;
 
+        public static string GrpcServerUrl = Config["GrpcService:Server"];
+
         public static IConfiguration Config
         {
             get
@@ -15,7 +17,7 @@ namespace GrpcDemo.Client.Applibs
                 {
                     var builder = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile("appsettings.json", true, true)
                         .AddEnvironmentVariables();
 
                     _config = builder.Build();
@@ -24,7 +26,5 @@ namespace GrpcDemo.Client.Applibs
                 return _config;
             }
         }
-
-        public static string GrpcServerUrl = Config["GrpcService:Server"];
     }
 }

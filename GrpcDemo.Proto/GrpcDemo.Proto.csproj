@@ -5,23 +5,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Protobuf Include="Protos\greet.proto">
-        <GrpcServices>Server,Client</GrpcServices>
-        <Access>Public</Access>
-        <ProtoCompile>True</ProtoCompile>
-        <CompileOutputs>True</CompileOutputs>
-        <OutputDir>obj\Debug\net5.0\</OutputDir>
-        <Generator>MSBuild:Compile</Generator>
-      </Protobuf>
+        <Protobuf Include="**/*.proto">
+            <GrpcServices>Server,Client</GrpcServices>
+        </Protobuf>
+        <!--      <Protobuf Include="Protos\greet.proto">-->
+        <!--        <GrpcServices>Server,Client</GrpcServices>-->
+        <!--      </Protobuf>-->
+        <!--      <Protobuf Include="Protos\bidirectional.proto" Link="message.proto">-->
+        <!--        <GrpcServices>Server,Client</GrpcServices>-->
+        <!--      </Protobuf>-->
+        <!--      <Protobuf Include="Protos\Service_Bidirectional.proto">-->
+        <!--        <GrpcServices>Server,Client</GrpcServices>-->
+        <!--      </Protobuf>-->
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Google.Protobuf" Version="3.20.1" />
-      <PackageReference Include="Grpc.Core" Version="2.46.0-pre2" />
-      <PackageReference Include="Grpc.Tools" Version="2.46.0-pre2">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
+        <PackageReference Include="Google.Protobuf" Version="3.20.1"/>
+        <PackageReference Include="Grpc.Core" Version="2.46.0-pre2"/>
+        <PackageReference Include="Grpc.Tools" Version="2.46.0-pre2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
 </Project>

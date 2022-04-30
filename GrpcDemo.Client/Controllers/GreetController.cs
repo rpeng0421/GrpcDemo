@@ -1,10 +1,9 @@
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
 using GrpcDemo.Client.Applibs;
-using GrpcDemo.Server;
+using GrpcDemo.Grpc.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -30,7 +29,7 @@ namespace GrpcDemo.Client.Controllers
                 {
                     var client = new Greeter.GreeterClient(channel);
                     var helloResult = await client.SayHelloAsync(new HelloRequest());
-                    
+
                     Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     return helloResult.Message;
                 }
