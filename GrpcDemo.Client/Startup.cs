@@ -1,3 +1,7 @@
+using System.Reflection;
+using Autofac;
+using GrpcDemo.Client.Model;
+using GrpcDemo.Client.Worker;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +28,7 @@ namespace GrpcDemo.Client
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GrpcDemo.Client", Version = "v1" });
             });
+            services.AddHostedService<BidirectionalService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +48,18 @@ namespace GrpcDemo.Client
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            var asm = Assembly.GetExecutingAssembly();
+
+            // 指定處理client指令的handler
+            builder.RegisterAssemblyTypes(asm)
+                .Where(t => t.IsAssignableTo<IActionHandler>())
+                .Named<IActionHandler>(t => t.Name.Replace("Handler", string.Empty).ToLower())
+                .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+                .SingleInstance();
         }
     }
 }

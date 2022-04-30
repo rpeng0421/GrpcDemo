@@ -30,7 +30,7 @@ namespace GrpcDemo.Server.Jobs
                 _logger.LogInformation("Start Job");
                 await _clientCollection.Send("1", new Action
                 {
-                    Type = "SendPingAction",
+                    Type = "PingAction",
                     Id = Guid.NewGuid().ToString(),
                     Content = "hello",
                     CreateDateTime = DateTime.Now.ToFileTimeUtc()

@@ -26,9 +26,9 @@ namespace GrpcDemo.Server
                     opt.WithIdentity(pingJobKey)
                 );
                 q.AddTrigger(opt => opt
-                        .ForJob(pingJobKey)
-                        .WithIdentity($"{nameof(SendPingActionJob)}-Trigger")
-                        .WithCronSchedule("*/5 * * * * ?")
+                    .ForJob(pingJobKey)
+                    .WithIdentity($"{nameof(SendPingActionJob)}-Trigger")
+                    .WithCronSchedule("*/5 * * * * ?")
                 );
             });
 
@@ -58,7 +58,10 @@ namespace GrpcDemo.Server
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterType<ClientCollection>();
+            builder.RegisterType<ClientCollection>()
+                .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+                .SingleInstance();
+            ;
         }
     }
 }

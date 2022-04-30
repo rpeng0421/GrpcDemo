@@ -26,5 +26,7 @@ namespace GrpcDemo.Server
                     webBuilder.UseStartup<Startup>();
                 });
         }
+        
+
     }
 }

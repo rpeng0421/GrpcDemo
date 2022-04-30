@@ -23,6 +23,17 @@ namespace GrpcDemo.Server.Model
             _logger = logger;
         }
 
+        public bool TryAdd(string id, IServerStreamWriter<Action> caller)
+        {
+            return this._clientDictionary.TryAdd(id, caller);
+        }
+
+
+        public bool TryRemove(string id)
+        {
+            return this._clientDictionary.TryRemove(id, out var client);
+        }
+
         public async Task Send(string id, Action action)
         {
             try
