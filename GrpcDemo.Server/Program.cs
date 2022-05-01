@@ -3,6 +3,8 @@ using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Web;
 using Quartz;
 
 namespace GrpcDemo.Server
@@ -24,9 +26,11 @@ namespace GrpcDemo.Server
                 {
                     webBuilder.ConfigureKestrel(op => { op.Listen(IPAddress.Any, 8085); });
                     webBuilder.UseStartup<Startup>();
-                });
+                }).ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(LogLevel.Trace);
+                }).UseNLog();
         }
-        
-
     }
 }

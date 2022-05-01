@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using GrpcDemo.Server.Applibs;
 using GrpcDemo.Server.Jobs;
 using GrpcDemo.Server.Model;
 using Microsoft.AspNetCore.Builder;
@@ -6,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
+using NLog.Extensions.Logging;
 using Quartz;
 
 namespace GrpcDemo.Server
@@ -38,8 +41,8 @@ namespace GrpcDemo.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
-
+            // if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
@@ -61,7 +64,11 @@ namespace GrpcDemo.Server
             builder.RegisterType<ClientCollection>()
                 .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
                 .SingleInstance();
-            ;
+            
+            // LogManager.Configuration = new NLogLoggingConfiguration(ConfigHelper.Config.GetSection("NLog"));
+            // builder.Register<Logger>(p => NLog.Web.NLogBuilder.ConfigureNLog(LogManager.Configuration).GetCurrentClassLogger())
+            //     .As<ILogger>()
+            //     .SingleInstance();
         }
     }
 }

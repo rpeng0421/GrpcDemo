@@ -1,5 +1,6 @@
 using System.Reflection;
 using Autofac;
+using GrpcDemo.Client.Applibs;
 using GrpcDemo.Client.Model;
 using GrpcDemo.Client.Worker;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace GrpcDemo.Client
 {
@@ -34,12 +37,13 @@ namespace GrpcDemo.Client
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GrpcDemo.Client v1"));
-            }
+            // if (env.IsDevelopment())
+            // {
+            //     app.UseDeveloperExceptionPage();
+            //     app.UseSwagger();
+            //     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GrpcDemo.Client v1"));
+            // }
+            LogManager.Configuration = new NLogLoggingConfiguration(ConfigHelper.Config.GetSection("NLog"));
 
             app.UseHttpsRedirection();
 
