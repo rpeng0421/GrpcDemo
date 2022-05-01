@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,21 +30,30 @@ namespace GrpcDemo.Client.Worker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using (var channel = GrpcChannel.ForAddress(ConfigHelper.GrpcServerUrl))
+            try
             {
-                var header = new Metadata() { new Metadata.Entry("id", "1") };
-                var client = new Bidirectional.BidirectionalClient(channel);
-                var bidirection = client.BindAction(new CallOptions(header));
-                await foreach (var action in bidirection.ResponseStream
-                                   .ReadAllAsync(cancellationToken: stoppingToken)
-                              )
+                using (var channel = GrpcChannel.ForAddress(ConfigHelper.GrpcServerUrl))
                 {
-                    _logger.LogInformation($"get action {action.ToString()}");
-                    if (this.handlerSet.TryGetValue(action.Type, out var handler))
+                    var header = new Metadata() { new Metadata.Entry("id", "1") };
+                    var client = new Bidirectional.BidirectionalClient(channel);
+                    var bidirection = client.BindAction(new CallOptions(header));
+                    await foreach (var action in bidirection.ResponseStream
+                                       .ReadAllAsync(cancellationToken: stoppingToken)
+                                  )
                     {
-                        handler.Handle(action);
+                        _logger.LogInformation($"get action {action.ToString()}");
+                        if (this.handlerSet.TryGetValue(action.Type, out var handler))
+                        {
+                            handler.Handle(action);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "connect process error maybe disconnect");
+                Thread.Sleep(5000);
+                await this.ExecuteAsync(stoppingToken);
             }
         }
     }
