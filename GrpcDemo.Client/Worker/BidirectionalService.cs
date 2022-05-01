@@ -14,12 +14,12 @@ namespace GrpcDemo.Client.Worker
 {
     public class BidirectionalService : BackgroundService
     {
-        private readonly ILogger<BackgroundService> _logger;
+        private readonly ILogger<BidirectionalService> _logger;
 
         private readonly IIndex<string, IActionHandler> handlerSet;
 
         public BidirectionalService(
-            ILogger<BackgroundService> logger,
+            ILogger<BidirectionalService> logger,
             IIndex<string, IActionHandler> handlerSet
         )
         {
