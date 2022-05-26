@@ -8,6 +8,7 @@ using Grpc.Net.Client;
 using GrpcDemo.Client.Applibs;
 using GrpcDemo.Client.Model;
 using GrpcDemo.Grpc.Service;
+using Line.Bot.Manager.Applibs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -32,20 +33,18 @@ namespace GrpcDemo.Client.Worker
         {
             try
             {
-                using (var channel = GrpcChannel.ForAddress(ConfigHelper.GrpcServerUrl))
+                var channel = GrpcChannelService.GrpcChannel;
+                var header = new Metadata() { new Metadata.Entry("id", "1") };
+                var client = new Bidirectional.BidirectionalClient(channel);
+                var bidirection = client.BindAction(new CallOptions(header));
+                await foreach (var action in bidirection.ResponseStream
+                                   .ReadAllAsync(cancellationToken: stoppingToken)
+                              )
                 {
-                    var header = new Metadata() { new Metadata.Entry("id", "1") };
-                    var client = new Bidirectional.BidirectionalClient(channel);
-                    var bidirection = client.BindAction(new CallOptions(header));
-                    await foreach (var action in bidirection.ResponseStream
-                                       .ReadAllAsync(cancellationToken: stoppingToken)
-                                  )
+                    _logger.LogInformation($"get action {action.ToString()}");
+                    if (this.handlerSet.TryGetValue(action.Type, out var handler))
                     {
-                        _logger.LogInformation($"get action {action.ToString()}");
-                        if (this.handlerSet.TryGetValue(action.Type, out var handler))
-                        {
-                            handler.Handle(action);
-                        }
+                        handler.Handle(action);
                     }
                 }
             }
