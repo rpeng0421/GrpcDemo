@@ -9,3 +9,8 @@ message Action{
   string Content = 3;
   int64 CreateDateTime = 4;
 }
+
+message User{
+  string Id = 1;
+  string Name = 2;
+}

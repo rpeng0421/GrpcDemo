@@ -7,4 +7,5 @@ import "Protos/Message_Aciotn.proto";
 
 service Bidirectional{
   rpc BindAction (stream Message.Action) returns (stream Message.Action);
+  rpc SendAction (Message.Action) returns (Message.Action);
 }

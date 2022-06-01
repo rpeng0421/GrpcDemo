@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
 using GrpcDemo.Grpc.Service;
@@ -32,8 +33,11 @@ namespace GrpcDemo.Server
             {
                 try
                 {
-                    await foreach (var action in requestStream.ReadAllAsync())
-                        _logger.LogInformation($"get action {action}");
+                    await foreach (var msg in requestStream.ReadAllAsync())
+                    {
+                        _logger.LogInformation("get action {Msg}", msg);
+                        // Thread.Sleep();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -43,6 +47,12 @@ namespace GrpcDemo.Server
                 }
             });
             this._clientCollection.TryRemove(id);
+        }
+
+        public async override Task<Action> SendAction(Action request, ServerCallContext context)
+        {
+            _logger.LogInformation("get action {Msg}", request);
+            return request;
         }
     }
 }
