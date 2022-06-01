@@ -1,8 +1,10 @@
 using System.Reflection;
 using Autofac;
+using Grpc.Net.Client;
 using GrpcDemo.Client.Applibs;
 using GrpcDemo.Client.Model;
 using GrpcDemo.Client.Worker;
+using Line.Bot.Manager.Applibs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -64,6 +66,8 @@ namespace GrpcDemo.Client
                 .Named<IActionHandler>(t => t.Name.Replace("Handler", string.Empty).ToLower())
                 .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
                 .SingleInstance();
+            
+
         }
     }
 }
