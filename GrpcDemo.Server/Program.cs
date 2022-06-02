@@ -33,15 +33,15 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Services.AddQuartz(q =>
 {
     q.UseMicrosoftDependencyInjectionJobFactory();
-    var pingJobKey = new JobKey(nameof(SendPingActionJob));
-    q.AddJob<SendPingActionJob>(opt =>
-        opt.WithIdentity(pingJobKey)
-    );
-    q.AddTrigger(opt => opt
-        .ForJob(pingJobKey)
-        .WithIdentity($"{nameof(SendPingActionJob)}-Trigger")
-        .WithCronSchedule("*/5 * * * * ?")
-    );
+    // var pingJobKey = new JobKey(nameof(SendPingActionJob));
+    // q.AddJob<SendPingActionJob>(opt =>
+    //     opt.WithIdentity(pingJobKey)
+    // );
+    // q.AddTrigger(opt => opt
+    //     .ForJob(pingJobKey)
+    //     .WithIdentity($"{nameof(SendPingActionJob)}-Trigger")
+    //     .WithCronSchedule("*/5 * * * * ?")
+    // );
 });
 
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
