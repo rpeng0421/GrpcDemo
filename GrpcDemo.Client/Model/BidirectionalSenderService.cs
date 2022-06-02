@@ -16,12 +16,8 @@ namespace GrpcDemo.Client.Model;
 public class BidirectionalSenderService
 {
     private readonly ILogger<BidirectionalSenderService> logger;
-    private readonly ConcurrentQueue<IDomainEvent> domainEventsQueue = new ConcurrentQueue<IDomainEvent>();
+    private readonly ConcurrentQueue<IDomainEvent> domainEventsCollection = new ConcurrentQueue<IDomainEvent>();
     private readonly Bidirectional.BidirectionalClient bidirectionalClient;
-
-    // private readonly ConcurrentQueue<IDomainEvent> sendMessageQueue = new ConcurrentQueue<IDomainEvent>();
-    // private readonly SemaphoreSlim locker = new SemaphoreSlim(0, 1);
-
 
     public BidirectionalSenderService(ILogger<BidirectionalSenderService> logger,
         Bidirectional.BidirectionalClient bidirectionalClient)
@@ -37,7 +33,7 @@ public class BidirectionalSenderService
         while (await timer.WaitForNextTickAsync())
         {
             var eventlist = new List<IDomainEvent>();
-            while (domainEventsQueue.TryDequeue(out var domainEvent))
+            while (domainEventsCollection.TryDequeue(out var domainEvent))
             {
                 eventlist.Add(domainEvent);
             }
@@ -52,7 +48,7 @@ public class BidirectionalSenderService
     {
         try
         {
-            await bidirectionalClient.SendActionAsync(new Action()
+            await bidirectionalClient.SendActionAsync(new Action
             {
                 Type = domainEvent.Type,
                 Id = domainEvent.EventId,
@@ -69,7 +65,7 @@ public class BidirectionalSenderService
 
     public void SendActionStream(IDomainEvent domainEvent)
     {
-        domainEventsQueue.Enqueue(domainEvent);
+        domainEventsCollection.Enqueue(domainEvent);
     }
 
     private async Task SendActionStreamAsync(IEnumerable<IDomainEvent> domainEvents)
@@ -81,14 +77,13 @@ public class BidirectionalSenderService
                 throw new Exception("request stream is invalidate");
             }
 
-            var actions = domainEvents.Select(domainEvent => new Action()
+            var actions = domainEvents.Select(domainEvent => new Action
             {
                 Type = domainEvent.Type,
                 Id = domainEvent.EventId,
                 Content = domainEvent.Data,
                 CreateDateTime = domainEvent.Timestamp
             });
-            logger.LogInformation("send actions, {count}", actions.Count());
             var streamAction = new StreamAction
             {
                 Actions = { actions }
