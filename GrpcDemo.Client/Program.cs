@@ -5,6 +5,7 @@ using GrpcDemo.Client.Applibs;
 using GrpcDemo.Client.Model;
 using GrpcDemo.Client.Worker;
 using GrpcDemo.Grpc.Service;
+using Line.Bot.Manager.Applibs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,15 +32,25 @@ builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
 {
     var asm = Assembly.GetExecutingAssembly();
 
+    builder.RegisterType<Bidirectional.BidirectionalClient>()
+        .WithParameter("channel", GrpcChannelService.GrpcChannel)
+        .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+        .SingleInstance();
+
     // 指定處理client指令的handler
     builder.RegisterAssemblyTypes(asm)
         .Where(t => t.IsAssignableTo<IActionHandler>())
         .Named<IActionHandler>(t => t.Name.Replace("Handler", string.Empty).ToLower())
         .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
         .SingleInstance();
+
+    builder.RegisterType<BidirectionalSenderService>()
+        .PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies)
+        .SingleInstance();
 });
 
 builder.Services.AddHostedService<BidirectionalService>();
+builder.Services.AddHostedService<SendMessageWorker>();
 builder.Services.AddControllers();
 
 var app = builder.Build();

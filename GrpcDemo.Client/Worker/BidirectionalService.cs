@@ -24,71 +24,28 @@ namespace GrpcDemo.Client.Worker
     public class BidirectionalService : BackgroundService
     {
         private readonly ILogger<BidirectionalService> _logger;
-
+        private readonly BidirectionalSenderService bidirectionalSenderService;
         private readonly IIndex<string, IActionHandler> handlerSet;
 
 
         public BidirectionalService(
             ILogger<BidirectionalService> logger,
-            IIndex<string, IActionHandler> handlerSet
-        )
+            IIndex<string, IActionHandler> handlerSet, BidirectionalSenderService bidirectionalSenderService)
         {
             _logger = logger;
             this.handlerSet = handlerSet;
+            this.bidirectionalSenderService = bidirectionalSenderService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                var httpHandler = new HttpClientHandler();
-                // Return `true` to allow certificates that are untrusted/invalid
-                httpHandler.ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-
-                var channel2 = GrpcChannel.ForAddress(ConfigHelper.GrpcServerUrl,
-                    new GrpcChannelOptions { HttpHandler = httpHandler });
-                var client2 = new Bidirectional.BidirectionalClient(channel2);
                 var channel = GrpcChannelService.GrpcChannel;
                 var header = new Metadata() { new Metadata.Entry("id", "1") };
                 var client = new Bidirectional.BidirectionalClient(channel);
                 var bidirection = client.BindAction(new CallOptions(header));
-                Task.Run(() =>
-                {
-                    while (true)
-                    {
-                        var users = Enumerable.Range(1, 50).Select(x => new User
-                        {
-                            Id = $"Id-{x}",
-                            Name = $"Name-{x}"
-                        });
-                        var data = JsonConvert.SerializeObject(users);
-                        var tasks = Enumerable.Range(1, 3).Select(x => client.SendActionAsync(new Action
-                        {
-                            Type = "UserEvent",
-                            Id = Guid.NewGuid().ToString(),
-                            Content = data,
-                            CreateDateTime = 0
-                        }).ResponseAsync).ToList();
-                        var tasks2 = Enumerable.Range(1, 3).Select(x => client2.SendActionAsync(new Action
-                        {
-                            Type = "UserEvent",
-                            Id = Guid.NewGuid().ToString(),
-                            Content = data,
-                            CreateDateTime = 0
-                        }).ResponseAsync).ToList();
-                        // var tasks = Enumerable.Range(1, 10).Select(x => bidirection.RequestStream.WriteAsync(new Action
-                        // {
-                        //     Type = "UserEvent",
-                        //     Id = Guid.NewGuid().ToString(),
-                        //     Content = data,
-                        //     CreateDateTime = 0
-                        // })).ToList();
-                        Task.WaitAll(tasks.ToArray());
-                        Task.WaitAll(tasks2.ToArray());
-                        Thread.Sleep(TimeSpan.FromSeconds(5));
-                    }
-                });
+                bidirectionalSenderService.RequestStream = bidirection.RequestStream;
                 await foreach (var action in bidirection
                                    .ResponseStream
                                    .ReadAllAsync(cancellationToken: stoppingToken))

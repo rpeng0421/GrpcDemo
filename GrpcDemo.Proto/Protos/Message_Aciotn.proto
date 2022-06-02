@@ -10,7 +10,21 @@ message Action{
   int64 CreateDateTime = 4;
 }
 
+message StreamAction{
+  repeated Action Actions = 1;
+}
+
 message User{
   string Id = 1;
   string Name = 2;
+}
+
+message ExecResult{
+  bool IsSucceed = 1;
+  string Message = 2;
+  string Data = 3;
+}
+
+message BaseExecResponse{
+  ExecResult Result = 1;
 }

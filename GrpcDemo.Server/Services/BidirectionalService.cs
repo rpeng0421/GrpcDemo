@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
+using GrpcDemo.Grpc.Message;
 using GrpcDemo.Grpc.Service;
 using GrpcDemo.Server.Model;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ namespace GrpcDemo.Server
         }
 
         public override async Task BindAction(
-            IAsyncStreamReader<Action> requestStream,
+            IAsyncStreamReader<StreamAction> requestStream,
             IServerStreamWriter<Action> responseStream,
             ServerCallContext context
         )
@@ -35,7 +36,7 @@ namespace GrpcDemo.Server
                 {
                     await foreach (var msg in requestStream.ReadAllAsync())
                     {
-                        _logger.LogInformation("get action {Msg}", msg);
+                        _logger.LogInformation("get action");
                         // Thread.Sleep();
                     }
                 }
@@ -49,10 +50,16 @@ namespace GrpcDemo.Server
             this._clientCollection.TryRemove(id);
         }
 
-        public async override Task<Action> SendAction(Action request, ServerCallContext context)
+        public async override Task<BaseExecResponse> SendAction(Action request, ServerCallContext context)
         {
             _logger.LogInformation("get action {Msg}", request);
-            return request;
+            return new BaseExecResponse()
+            {
+                Result = new ExecResult()
+                {
+                    IsSucceed = true
+                }
+            };
         }
     }
 }
